@@ -1,6 +1,6 @@
 # -*- coding:utf8 -*-
 from datetime import datetime, timedelta
-
+import json
 import sqlalchemy
 from sqlalchemy import Column, Integer, String, DateTime
 from app.app import db
@@ -111,64 +111,65 @@ class LineError(db.Model):
     __tablename__ = "LineError"
 
     id = Column(Integer, primary_key=True, autoincrement=1)
-    Name = Column(String(10))
-    time = Column(DateTime)
-    identification = Column(String)
-    thousand = Column(String)
-    hundred = Column(String)
-    Latitude = Column(String)
+    Name = Column(String)
+    Time = Column(String)
+    Identification = Column(String)
+    Thousand = Column(String)
+    Hundred = Column(String)
+    Special = Column(String)
+    Serial = Column(String)
     Longitude = Column(String)
-    special = Column(String)
-    kjqs  = Column(String)
-    kjqs_mark = Column(String)
-    kjsd  = Column(String)
-    kjsd_mark = Column(String)
-    kjxs = Column(String)
-    kjxs_mark = Column(String)
-    cddjd = Column(String)
-    cddjd_mark = Column(String)
-    ckdjd = Column(String)
-    ckdjd_mark = Column(String)
-    lgzd = Column(String)
-    lgzd_mark = Column(String)
-    gmcs = Column(String)
-    gmcs_mark= Column(String)
-    hfyzm= Column(String)
-    hfyzm_mark= Column(String)
-    jtlssd= Column(String)
-    jtlssd_mark= Column(String)
-    jtlsqs= Column(String)
-    jtlsqs_mark= Column(String)
-    dcfj= Column(String)
-    dcfj_mark= Column(String)
-    zmsx= Column(String)
-    zmsx_mark= Column(String)
-    jybh= Column(String)
-    jybh_mark= Column(String)
-    dcqz= Column(String)
-    dcqz_mark= Column(String)
-    ljzc= Column(String)
-    ljzc_mark= Column(String)
-    sgds= Column(String)
-    sgds_mark= Column(String)
-    dxqz= Column(String)
-    dxqz_mark= Column(String)
-    xldp= Column(String)
-    xldp_mark= Column(String)
-    xldx= Column(String)
-    xldx_mark= Column(String)
-    fbwps= Column(String)
-    fbwps_mark= Column(String)
-    ggcm= Column(String)
-    ggcm_mark= Column(String)
-    ggchm= Column(String)
-    ggchm_mark= Column(String)
-    sgps= Column(String)
-    sgps_mark= Column(String)
-    xlbz= Column(String)
-    xlbz_mark= Column(String)
-    other= Column(String)
-    other_mark= Column(String)
+    Latitude = Column(String)
+    KJQS = Column(String)
+    KJQS_mark = Column(String)
+    KJSD = Column(String)
+    KJSD_mark = Column(String)
+    KJXS = Column(String)
+    KJXS_mark = Column(String)
+    CDDJD = Column(String)
+    CDDJD_mark = Column(String)
+    CKDJD = Column(String)
+    CKDJD_mark = Column(String)
+    LGZD = Column(String)
+    LGZD_mark = Column(String)
+    GMCS = Column(String)
+    GMCS_mark = Column(String)
+    HFYZM = Column(String)
+    HFYZM_mark = Column(String)
+    JTLSSD = Column(String)
+    JTLSSD_mark = Column(String)
+    JTLSQS = Column(String)
+    JTLSQS_mark = Column(String)
+    DCFJ = Column(String)
+    DCFJ_mark = Column(String)
+    ZMSX = Column(String)
+    ZMSX_mark = Column(String)
+    JYBH = Column(String)
+    JYBH_mark = Column(String)
+    DCQZ = Column(String)
+    DCQZ_mark = Column(String)
+    LJZC = Column(String)
+    LJZC_mark = Column(String)
+    SGDS = Column(String)
+    SGDS_mark = Column(String)
+    DXQZ = Column(String)
+    DXQZ_mark = Column(String)
+    XLDP = Column(String)
+    XLDP_mark = Column(String)
+    XLDX = Column(String)
+    XLDX_mark = Column(String)
+    FBWPS = Column(String)
+    FBWPS_mark = Column(String)
+    GGCM = Column(String)
+    GGCM_mark = Column(String)
+    GGCHM = Column(String)
+    GGCHM_mark = Column(String)
+    SGPS = Column(String)
+    SGPS_mark = Column(String)
+    XLBZ = Column(String)
+    XLBZ_mark = Column(String)
+    other = Column(String)
+    other_mark = Column(String)
 
     @staticmethod
     def getRandomN(n):
@@ -181,7 +182,7 @@ class LineError(db.Model):
         return res
 
     def IsExist(self):
-        #to-do
+        # to-do
         res = Data.query.filter(sqlalchemy.and_(LineError.Name == self.Name,
                                                 LineError.Latitude == self.Latitude,
                                                 LineError.Longitude == self.Longitude)).order_by(Data.id.desc()).first()
@@ -190,17 +191,75 @@ class LineError(db.Model):
         else:
             return False
 
-
     def isValid(self):
-        if self.time and self.name and self.Longitude and self.Latitude:
+        if self.Time and self.Name and self.Longitude and self.Latitude:
             return False
         else:
             return True
 
-
-    def __repr__(self):
-        return 'LineError %r,%r,%r,%r' % (self.id, self.Latitude, self.Longitude, self.time)
-
+    def get_dict(self):
+        res = {
+            'Special': self.Special,
+            'JYBH_mark': self.JYBH_mark,
+            'JTLSQS_mark': self.JTLSQS_mark,
+            'DCFJ_mark': self.DCFJ_mark,
+            'XLDX': self.XLDX,
+            'CDDJD_mark': self.CDDJD_mark,
+            'DCQZ_mark': self.DCQZ_mark,
+            'XLDX_mark': self.XLDX_mark,
+            'XLDP': self.XLDP,
+            'LGZD_mark': self.LGZD_mark,
+            'GGCHM': self.GGCHM,
+            'DXQZ_mark': self.DXQZ_mark,
+            'KJXS_mark': self.KJXS_mark,
+            'Hundred': self.Hundred,
+            'LGZD': self.LGZD,
+            'CKDJD_mark': self.CKDJD_mark,
+            'ZMSX': self.ZMSX,
+            'LJZC': self.LJZC,
+            'JYBH': self.JYBH,
+            'Serial': self.Serial,
+            'DXQZ': self.DXQZ,
+            'DCQZ': self.DCQZ,
+            'Longitude': self.Longitude,
+            'JTLSQS': self.JTLSQS,
+            'XLDP_mark': self.XLDP_mark,
+            'SGDS_mark': self.SGDS_mark,
+            'other': self.other,
+            'KJQS': self.KJQS,
+            'SGPS_mark': self.SGPS_mark,
+            'GMCS': self.GMCS,
+            'XLBZ_mark': self.XLBZ_mark,
+            'GGCM_mark': self.GGCM_mark,
+            'HFYZM_mark': self.HFYZM_mark,
+            'CKDJD': self.CKDJD,
+            'GMCS_mark': self.GMCS_mark,
+            'Time': self.Time,
+            'HFYZM': self.HFYZM,
+            'ZMSX_mark': self.ZMSX_mark,
+            'XLBZ': self.XLBZ,
+            'Latitude': self.Latitude,
+            'LJZC_mark': self.LJZC_mark,
+            'KJSD_mark': self.KJSD_mark,
+            'GGCM': self.GGCM,
+            'other_mark': self.other_mark,
+            'CDDJD': self.CDDJD,
+            'JTLSSD_mark': self.JTLSSD_mark,
+            'DCFJ': self.DCFJ,
+            'FBWPS': self.FBWPS,
+            'SGDS': self.SGDS,
+            'JTLSSD': self.JTLSSD,
+            'GGCHM_mark': self.GGCHM_mark,
+            'Identification': self.Identification,
+            'SGPS': self.SGPS,
+            'Name': self.Name,
+            'Thousand': self.Thousand,
+            'KJQS_mark': self.KJQS_mark,
+            'KJXS': self.KJXS,
+            'KJSD': self.KJSD,
+            'FBWPS_mark': self.FBWPS_mark
+        }
+        return res
 
 
 class Auth(db.Model):
@@ -260,4 +319,3 @@ def db_merge(item):
     except Exception as e:
         print e
         db.session.rollback()
-
