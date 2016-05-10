@@ -110,7 +110,7 @@ class Mainline(db.Model):
 class LineError(db.Model):
     __tablename__ = "LineError"
 
-    id = Column(Integer, primary_key=True, autoincrement=1)
+    id = Column(Integer, autoincrement=1)
     Name = Column(String)
     Time = Column(String)
     Identification = Column(String)
@@ -170,7 +170,7 @@ class LineError(db.Model):
     XLBZ_mark = Column(String)
     other = Column(String)
     other_mark = Column(String)
-    UUID = Column(String)
+    UUID = Column(String,primary_key=True)
 
 
     @staticmethod
@@ -182,6 +182,14 @@ class LineError(db.Model):
     def getAll():
         res = LineError.query.order_by(LineError.id.desc()).all()
         return res
+
+    @staticmethod
+    def delAll():
+        db.session.query(LineError).filter(LineError.id > 0).delete()
+
+        db.session.commit()
+
+
 
     def IsExist(self):
         # to-do
@@ -196,6 +204,8 @@ class LineError(db.Model):
             return False
         else:
             return True
+
+
 
     def get_dict(self):
         res = {
@@ -286,6 +296,7 @@ class Auth(db.Model):
             return True
         else:
             return False
+
 
     def IsUserExist(self):
         res = Auth.query.filter(Auth.userid == self.userid).order_by(Auth.id.desc()).first()

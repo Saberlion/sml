@@ -148,6 +148,11 @@ def checkErrorGet():
     return ResponseFormat(0, 'success', res).get_json()
 
 
+@api_module.route('/api/del', methods=['get'])
+def delPost():
+    LineError.delAll()
+    return ResponseFormat(0).get_json()
+
 @api_module.route('/api/upload', methods=['post'])
 def checkErrorPost():
     resjson = request.json
@@ -211,6 +216,7 @@ def checkErrorPost():
     le.XLBZ_mark = resjson['XLBZ_mark']
     le.other = resjson['other']
     le.other_mark = resjson['other_mark']
+    le.UUID = resjson['UUID']
     # if le.isValid():
     #     return ResponseFormat(1, 'Post parameters invalid').get_json()
     if le.IsExist():
