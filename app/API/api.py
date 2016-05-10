@@ -215,6 +215,7 @@ def checkErrorPost():
     #     return ResponseFormat(1, 'Post parameters invalid').get_json()
     if le.IsExist():
         db_merge(le)
+        return ResponseFormat(0, 'update').get_json()
     else:
         db_add(le)
-    return ResponseFormat(0, 'success').get_json()
+        return ResponseFormat(0, 'success').get_json()

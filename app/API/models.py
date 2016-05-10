@@ -170,6 +170,8 @@ class LineError(db.Model):
     XLBZ_mark = Column(String)
     other = Column(String)
     other_mark = Column(String)
+    UUID = Column(String)
+
 
     @staticmethod
     def getRandomN(n):
@@ -183,9 +185,7 @@ class LineError(db.Model):
 
     def IsExist(self):
         # to-do
-        res = Data.query.filter(sqlalchemy.and_(LineError.Name == self.Name,
-                                                LineError.Latitude == self.Latitude,
-                                                LineError.Longitude == self.Longitude)).order_by(Data.id.desc()).first()
+        res = LineError.query.filter(LineError.UUID == self.UUID).order_by(LineError.id.desc()).first()
         if res:
             return True
         else:
@@ -257,7 +257,8 @@ class LineError(db.Model):
             'KJQS_mark': self.KJQS_mark,
             'KJXS': self.KJXS,
             'KJSD': self.KJSD,
-            'FBWPS_mark': self.FBWPS_mark
+            'FBWPS_mark': self.FBWPS_mark,
+            'UUID':self.UUID
         }
         return res
 
