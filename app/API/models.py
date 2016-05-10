@@ -185,8 +185,7 @@ class LineError(db.Model):
 
     @staticmethod
     def delAll():
-        db.session.query(LineError).filter(LineError.id > 0).delete()
-
+        db.session.query(LineError).delete()
         db.session.commit()
 
 
