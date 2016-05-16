@@ -112,7 +112,7 @@ class LineError(db.Model):
 
     id = Column(Integer, autoincrement=1)
     Name = Column(String)
-    Time = Column(String)
+    Time = Column(DateTime)
     Identification = Column(String)
     Thousand = Column(String)
     Hundred = Column(String)
@@ -207,6 +207,7 @@ class LineError(db.Model):
 
 
     def get_dict(self):
+        time = self.Time.strftime('%Y%m%d')
         res = {
             'Special': self.Special,
             'JYBH_mark': self.JYBH_mark,
@@ -243,7 +244,7 @@ class LineError(db.Model):
             'HFYZM_mark': self.HFYZM_mark,
             'CKDJD': self.CKDJD,
             'GMCS_mark': self.GMCS_mark,
-            'Time': self.Time,
+            'Time': time,
             'HFYZM': self.HFYZM,
             'ZMSX_mark': self.ZMSX_mark,
             'XLBZ': self.XLBZ,

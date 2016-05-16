@@ -4,7 +4,7 @@ import time
 
 from flask import request, Response, Blueprint
 
-from app.API.decorators import ResponseFormat, auth
+from app.API.decorators import ResponseFormat, auth,jsonp
 
 api_module = Blueprint('api_module', __name__)
 
@@ -153,12 +153,47 @@ def delPost():
     LineError.delAll()
     return ResponseFormat(0).get_json()
 
-@api_module.route('/api/upload', methods=['post'])
+@api_module.route('/api/search', methods=['post'])
+@jsonp
 def checkErrorPost():
+    resjson = request.json
+    startdate = datetime.strptime(resjson['startdate'], '%Y%m%d')
+    enddate = datetime.strptime(resjson['enddate'], '%Y%m%d')
+    thousand = resjson['thousand']
+    hundred = resjson['hundred']
+    specail = resjson['special']
+    identification = resjson['identification']
+    Serial = resjson['Serial']
+    query = LineError.query
+    if startdate and enddate:
+        query = query.filter(LineError.Time.between(startdate,enddate))
+    if thousand:
+        query = query.filter(LineError.thousand == thousand)
+    if hundred:
+        query = query.filter(LineError.hundred == hundred)
+    if specail:
+        query = query.filter(LineError.special == specail)
+    if identification:
+        query = query.filter(LineError.identification == identification)
+    if Serial:
+        query = query.filter(LineError.Serial == Serial)
+    res = query.all()
+    data_list = []
+    for item in res:
+        data_list.append(item.get_dict())
+
+    res_dict = ResponseFormat(data_list=data_list)
+
+    return json.dumps(res_dict.get_dict())
+
+
+@api_module.route('/api/upload', methods=['post'])
+def uploadPost():
     resjson = request.json
     le = LineError()
     le.Name = resjson['Name']
-    le.Time = resjson['Time']
+    time  = datetime.strptime(resjson['Time'], '%Y%m%d')
+    le.Time = time
     le.Identification = resjson['Identification']
     le.Thousand = resjson['Thousand']
     le.Hundred = resjson['Hundred']
