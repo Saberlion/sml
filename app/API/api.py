@@ -2,7 +2,7 @@
 import json
 import time
 
-from flask import request, Response, Blueprint
+from flask import request, Response, Blueprint,render_template
 
 from app.API.decorators import ResponseFormat, auth,jsonp
 
@@ -11,10 +11,17 @@ api_module = Blueprint('api_module', __name__)
 from models import *
 
 
-@api_module.route('/')
-def hello_world():
-    return 'Hello World!'
+@api_module.route('/line.html')
+def line():
+    return render_template('line.html')
 
+@api_module.route('/register.html')
+def register():
+    return render_template('register.html')
+
+@api_module.route('/')
+def login():
+    return render_template('login.html')
 
 @api_module.route('/api/reg', methods=['post'])
 def regist():
@@ -167,15 +174,15 @@ def checkErrorPost():
     query = LineError.query
     if startdate and enddate:
         query = query.filter(LineError.Time.between(startdate,enddate))
-    if thousand:
-        query = query.filter(LineError.thousand == thousand)
-    if hundred:
-        query = query.filter(LineError.hundred == hundred)
-    if specail:
-        query = query.filter(LineError.special == specail)
-    if identification:
-        query = query.filter(LineError.identification == identification)
-    if Serial:
+    if thousand and len(thousand) > 0:
+        query = query.filter(LineError.Thousand == thousand)
+    if hundred and len(hundred) > 0:
+        query = query.filter(LineError.Hundred == hundred)
+    if specail and len(specail) > 0:
+        query = query.filter(LineError.Special == specail)
+    if identification and len(identification) > 0:
+        query = query.filter(LineError.Identification == identification)
+    if Serial and len(Serial) > 0:
         query = query.filter(LineError.Serial == Serial)
     res = query.all()
     data_list = []
