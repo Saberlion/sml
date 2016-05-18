@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>线路查询</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui/easyui.css"/>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui/icon.css"/>
+    <script type="text/javascript" src="jquery-easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript"
+            src="http://webapi.amap.com/maps?v=1.3&key=e06f71b92f7242a127c02e8287369e7d"></script>
+    <style type="text/css">
+        #tab {
+            width: 98%;
+            margin: 0px auto;
+        }
+
+        #map {
+            float: left;
+        }
+
+        #searchMap {
+            float: right;
+            margin-right: 100px;
+        }
+
+        .tableMessage table {
+            border-collapse: collapse;
+            border: 1px solid black;
+            float: left;
+            margin: 0px 5px;
+            text-align: center;
+        }
+
+        .tableMessage table:first-child {
+            width: 20%;
+            height: 400px;
+        }
+
+        .tableMessage table:first-child tr {
+            margin-bottom: 20px;
+        }
+
+        .tableMessage > div {
+            float: right;
+            width: 75%;
+            height: 440px;
+            overflow: scroll;
+        }
+
+        .tableMessage table:last-child {
+            width: 150%;
+
+        }
+
+        .tableMessage table:last-child tr {
+            height: 30px;
+        }
+
+        .tableMessage table:last-child th {
+            border: 1px solid silver;
+            height: 30px;
+        }
+
+        .tableMessage table:last-child td {
+            border: 1px solid silver;
+        }
+
+
+    </style>
+</head>
+<body>
+<h1 style="text-align:center;">铁 路 巡 检 系 统 管 理 平 台</h1>
+<p style="text-align:right;margin-right:20px;">您好,<span id="user">Admin</span>&nbsp;&nbsp;&nbsp;<a target="_self"
+                                                                                                   href="login.html">退出</a>
+</p>
+<div id="tab" class="easyui-tabs">
+    <div id="mapContainer" title="地图查找" style="padding:10px">
+        <div id="map" style="width:700px;height:400px;border:#F6F6F6 solid 1px;position:relative;padding:0px;">
+            <div id="geocoder" style="position:absolute;top:0px;left:0px;z-index:200;background-color:red;"></div>
+        </div>
+        <div id="searchMap">
+            <form style="width:300px;border:1px solid silver;margin-bottom:50px;margin-top: 20px;padding: 5px">
+                <table>
+                    <caption>查询信息</caption>
+                    <tr>
+                        <td align="center">开始时间：</td>
+                        <td align="center"><input id="search_start_time" type="text" class="easyui-datebox"/></td>
+
+                    </tr>
+                    <tr>
+                        <td align="center">结束时间：</td>
+                        <td align="center"><input id="search_end_time" type="text" class="easyui-datebox" value="<script>new Date();</script>"/></td>
+                    </tr>
+                     <tr>
+                        <td colspan="2" align="center"><input type="button" style="margin-left: 35px" value="查询"
+                                   onclick=""/>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+            <div style="width:300px;height:250px;;border:1px solid silver;padding: 5px">
+                <p style="text-align:center;">显示信息</p>
+                <dl id="showMessage">
+                    <dt>位置信息</dt>
+                    <dd><textarea id="showLocation" style="color:red;height:60px;width:200px;"></textarea></dd>
+                    <dt style="margin-top: 10px">病害信息</dt>
+                    <dd><textarea id="showError" style="color:red;height:60px;width:200px;"></textarea></dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div id="line" class="tableMessage" title="线路" style="padding:10px;">
+        <table>
+            <caption>查询条件</caption>
+            <tbody>
+            <tr>
+                <td>线路名</td>
+                <td><select id="line_name">
+                    <option selected="selected">汉丹线</option>
+                    <option>京九线</option>
+                    <option>武黄线</option>
+                </select>
+                </td>
+            </tr>
+            <tr>
+                <td>开始时间</td>
+                <td>
+                    <input id="line_start_time" type="text" class="easyui-datebox"/>
+                </td>
+            </tr>
+            <tr>
+                <td>结束时间</td>
+                <td>
+                    <input id="line_end_time" type="text" class="easyui-datebox"
+                           value="<script>new Date();</script>"/>
+                </td>
+            </tr>
+            <tr>
+                <td>千米</td>
+                <td><input id="line_qian" type="text"/></td>
+            </tr>
+            <tr>
+                <td>百米</td>
+                <td><input id="line_bai" type="text"/></td>
+            </tr>
+            <tr>
+                <td>行别</td>
+                <td><input id="line_xb" type="text"/></td>
+            </tr>
+            <tr>
+                <td>特殊设备</td>
+                <td><input id="line_sp" type="text"/></td>
+            </tr>
+            <tr>
+                <td colspan="2" align="center"><input type="button" value="查询"
+                                                      onclick="doAsyncPost_line()"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" align="center"><input type="button" value="导出Excel"/></td>
+            </tr>
+            </tbody>
+        </table>
+        <div id="table-line-div">
+            <table id="table-line">
+                <tr>
+                    <th></th>
+                </tr>
+                <tr>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div id="road" class="tableMessage" title="股道" style="padding:10px;">
+        <table>
+            <caption>查询条件</caption>
+            <tbody>
+            <tr>
+                <td>股道名</td>
+                <td>
+                    <select id="road_name">
+                        <option selected="selected">汉丹线</option>
+                        <option>京九线</option>
+                        <option>武黄线</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>开始时间</td>
+                <td>
+                    <input id="road_start_time" type="text" class="easyui-datebox"/>
+                </td>
+            </tr>
+            <tr>
+                <td>结束时间</td>
+                <td>
+                    <input id="road_end_time" type="text" class="easyui-datebox"
+                           value="<script>new Date();</script>"/>
+                </td>
+            </tr>
+            <tr>
+                <td>铁号</td>
+                <td><input id="road_num" type="text"/></td>
+            </tr>
+            <tr>
+                <td colspan="2" align="center"><input type="button" value="查询"
+                                                      onclick="doAsyncPost_road()"/></td>
+            </tr>
+            <tr>
+                <td colspan="2" align="center"><input type="button" value="导出Excel"/></td>
+            </tr>
+            </tbody>
+        </table>
+        <div id="table-road-div">
+            <table id="table-road">
+                <tr>
+                    <th></th>
+                </tr>
+                <tr>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<button onclick="hideInput(this)">隐藏输入框</button>
+</body>
+<script type="text/javascript">
+    $(document).ready(function () {
+        initTab();//初始化选项卡监听事件
+        initMap();//初始化高德地图插件
+
+    });
+
+
+    function getCookie() {
+        var cookie = {};
+        var all = document.cookie;
+        if (all == "") {
+            return cookie;
+        } else {
+            var list = all.split(";");
+            for (var i = 0; i < list.length; i++) {
+                var temp = list[i];
+                var p = temp.indexOf("=");
+                var name = temp.substring(0, p);
+                var value = temp.substring(p + 1);
+                cookie[name] = value;
+            }
+            return cookie;
+        }
+    }
+
+    //异步提交查询条件集合到服务器，并获得返回的jsonArray,初始化表格
+    //line
+//    function doAsyncPost_line() {
+//        $.ajax({
+//            url: "http://saberlion-sml.daoapp.io/api/lineerror?",
+//            type: "POST",
+//            data: getJsonStrForLine(),
+//            dataType: "json",
+//            success: function (data) {
+//                //初始化表格数据
+//                var dataObjectArray =eval('('+data+')').data;
+//                var line_content =lineDataFilter(dataObjectArray);
+//                initLineTable(line_content);
+//            }
+//        });
+//    }
+
+    function doAsyncPost_line() {
+        $.ajax({
+            url: "http://saberlion-sml.daoapp.io/api/lineerror?",
+            type: "POST",
+            data: getJsonStrForLine(),
+            dataType: "json",
+            success: function (data) {
+                //初始化表格数据
+                var dataObjectArray =eval('('+data+')').data;
+                var line_content =lineDataFilter(dataObjectArray);
+                initLineTable(line_content);
+            }
+        });
+    }
+
+    function xxx(data){
+
+    }
+
+    var url ="http://saberlion-sml.daoapp.io/api/search?callback=doAsyncPost_line&&jsonData="+getJsonStrForLine();
+
+    function loadScript(url){
+        var script=document.createElement("script");
+        script.type="text/javascript";
+        script.src=url;
+        document.body.appendChild(script);
+    }
+
+
+    //road
+    function doAsyncPost_road() {
+        $.ajax({
+            url: "http://saberlion-sml.daoapp.io/api/lineerror",
+            type: "POST",
+            data: getJsonStrForRoad(),
+            dataType: "json",
+            success: function (data) {
+                //初始化表格数据
+                var dataObjectArray =eval('('+data+')').data;
+                var road_content =roadDataFilter(dataObjectArray);
+                initRoadTable(road_content);
+            }
+        });
+    }
+
+    //线路查询 json字符串
+    function getJsonStrForLine() {
+        var line_name = $('#line_name').val();
+        var line_start_time = $('#line_start_time').datetimebox('getValue') == "" ? "2012-12-12 00:00:00" : $('#line_start_time').datetimebox('getValue');
+        var line_end_time = $('#line_end_time').datetimebox('getValue') == "" ? "2016-07-01 00:00:00" : $('#line_end_time').datetimebox('getValue');
+        var line_qian = $('#line_qian').val() == "" ? "1" : $('#line_qian').val();
+        var line_bai = $('#line_bai').val() == "" ? "1" : $('#line_bai').val();
+        var line_xb = $('#line_xb').val() == "" ? "1" : $('#line_xb').val();
+        var line_sp = $('#line_sp').val() == "" ? "1" : $('#line_sp').val();
+
+        var jsonStr = '[{"line_name":' + line_name + ',"line_start_time":' + line_start_time
+                + ',"line_end_time":' + line_end_time
+                + ',"line_qian":' + line_qian + ',"line_bai":' + line_bai
+                + ',"line_xb":' + line_xb + ',"line_sp":' + line_sp + '}]';
+        alert(jsonStr);
+        return jsonStr;
+    }
+
+    //股道查询 json字符串
+    function getJsonStrForRoad() {
+        var road_name = $('#road_name').val();
+        var road_start_time = $('#road_start_time').datetimebox('getValue') == "" ? "2012-12-12 00:00:00" : $('#road_start_time').datetimebox('getValue');
+        var road_end_time = $('#road_end_time').datetimebox('getValue') == "" ? "2016-07-01 00:00:00" : $('#road_end_time').datetimebox('getValue');
+        var road_num = $('#road_num').val() == "" ? "1" : $('#road_num').val();
+
+        var jsonStr = '[{"road_name":' + road_name + ',"road_start_time":' + road_start_time
+                + ',"road_end_time":' + road_end_time
+                + ',"road_num":' + road_num + '}]';
+        alert(jsonStr);
+        return jsonStr;
+    }
+
+    /**获取数据填充表格**/
+    //表头
+    //57列
+    var lineTableColumnNames = ["序号", "线路名", "时间", "行别", "千米", "百米", "特殊设备", "扣件缺少", "扣件缺少备注",
+        "扣件松动", "扣件松动备注", "扣件锈蚀", "扣件锈蚀备注", "超垫大胶垫", "超垫大胶垫备注", "抽空大胶垫", "抽空大胶垫备注", "螺杆折断", "螺杆折断备注",
+        "轨面搽伤", "轨面搽伤备注", "焊缝压枕木", "焊缝压枕木备注", "接头螺栓松动", "接头螺栓松动备注", "接头螺栓缺少", "接头螺栓缺少备注",
+        "道床翻浆", "道床翻浆备注", "枕木失效", "枕木失效备注", "绝缘病害", "绝缘病害备注", "道床缺渣", "道床缺渣备注", "露肩杂草", "露肩杂草备注",
+        "水沟堵塞", "水沟堵塞备注", "道心缺渣", "道心缺渣备注", "线路大平", "线路大平备注", "线路大向", "线路大向备注", "封闭网破损", "封闭网破损备注",
+        "钢轨侧磨", "钢轨侧磨备注", "钢轨垂磨", "钢轨垂磨备注", "水沟破损", "水沟破损备注", "线路标志", "线路标志备注", "其他", "其他备注"];
+
+    //54列
+    var roadTableColumnNames = ["序号", "股道名", "时间", "铁号", "扣件缺少", "扣件缺少备注",
+        "扣件松动", "扣件松动备注", "扣件锈蚀", "扣件锈蚀备注", "超垫大胶垫", "超垫大胶垫备注", "抽空大胶垫", "抽空大胶垫备注", "螺杆折断", "螺杆折断备注",
+        "轨面搽伤", "轨面搽伤备注", "焊缝压枕木", "焊缝压枕木备注", "接头螺栓松动", "接头螺栓松动备注", "接头螺栓缺少", "接头螺栓缺少备注",
+        "道床翻浆", "道床翻浆备注", "枕木失效", "枕木失效备注", "绝缘病害", "绝缘病害备注", "道床缺渣", "道床缺渣备注", "露肩杂草", "露肩杂草备注",
+        "水沟堵塞", "水沟堵塞备注", "道心缺渣", "道心缺渣备注", "线路大平", "线路大平备注", "线路大向", "线路大向备注", "封闭网破损", "封闭网破损备注",
+        "钢轨侧磨", "钢轨侧磨备注", "钢轨垂磨", "钢轨垂磨备注", "水沟破损", "水沟破损备注", "线路标志", "线路标志备注", "其他", "其他备注"];
+
+
+    var dataExample ='{"msg": "success", "code": 0, "data": [{"DCQZ_mark": "", "DCFJ": "0", "KJSD_mark": "", "Identification": "\u4e0a \u884c", "XLDP_mark": "", "GGCHM_mark": "", "Hundred": "3", "JTLSQS_mark": "", "CKDJD": "0", "SGPS": "0", "SGPS_mark": "", "HFYZM": "0", "GGCM_mark": "", "HFYZM_mark": "", "JTLSSD": "0", "LJZC": "0", "ZMSX_mark": "", "XLDX_mark": "", "KJSD": "0", "Longitude": "-18.5333", "LJZC_mark": "", "JTLSSD_mark": "", "Time": "20160509", "DXQZ": "0", "SGDS_mark": "", "KJQS_mark": "", "CKDJD_mark": "", "UUID": "858120a4-5b68-4d1c-8dd5-f6257a1252cf", "XLBZ": "0", "FBWPS_mark": "", "FBWPS": "0", "DXQZ_mark": "", "Special": "", "KJXS_mark": "", "JYBH_mark": "", "XLBZ_mark": "", "GGCM": "0", "Latitude": "65.9667", "KJQS": "3", "KJXS": "0", "Thousand": "0", "JTLSQS": "0", "other": "0", "DCFJ_mark": "", "XLDX": "0", "Name": "\u6c49\u4e39\u7ebf", "JYBH": "0", "XLDP": "0", "GGCHM": "0", "ZMSX": "0", "GMCS_mark": "", "LGZD": "0", "other_mark": "", "LGZD_mark": "", "CDDJD": "0", "CDDJD_mark": "", "DCQZ": "0", "SGDS": "0", "GMCS": "0", "Serial": ""}, {"DCQZ_mark": "", "DCFJ": "0", "KJSD_mark": "", "Identification": "\u4e0a \u884c", "XLDP_mark": "", "GGCHM_mark": "", "Hundred": "1", "JTLSQS_mark": "", "CKDJD": "0", "SGPS": "0", "SGPS_mark": "", "HFYZM": "0", "GGCM_mark": "", "HFYZM_mark": "", "JTLSSD": "0", "LJZC": "0", "ZMSX_mark": "", "XLDX_mark": "", "KJSD": "0", "Longitude": "-18.5333", "LJZC_mark": "", "JTLSSD_mark": "", "Time": "20160509", "DXQZ": "0", "SGDS_mark": "", "KJQS_mark": "", "CKDJD_mark": "", "UUID": "f3b7f484-6595-4684-8a1d-e4dacb17c879", "XLBZ": "0", "FBWPS_mark": "", "FBWPS": "0", "DXQZ_mark": "", "Special": "", "KJXS_mark": "", "JYBH_mark": "", "XLBZ_mark": "", "GGCM": "0", "Latitude": "65.8667", "KJQS": "4", "KJXS": "0", "Thousand": "0", "JTLSQS": "0", "other": "0", "DCFJ_mark": "", "XLDX": "0", "Name": "\u6c49\u4e39\u7ebf", "JYBH": "0", "XLDP": "0", "GGCHM": "0", "ZMSX": "0", "GMCS_mark": "", "LGZD": "0", "other_mark": "", "LGZD_mark": "", "CDDJD": "0", "CDDJD_mark": "", "DCQZ": "0", "SGDS": "0", "GMCS": "0", "Serial": ""}, {"DCQZ_mark": "", "DCFJ": "0", "KJSD_mark": "", "Identification": "", "XLDP_mark": "", "GGCHM_mark": "", "Hundred": "", "JTLSQS_mark": "", "CKDJD": "5", "SGPS": "0", "SGPS_mark": "", "HFYZM": "0", "GGCM_mark": "", "HFYZM_mark": "", "JTLSSD": "0", "LJZC": "0", "ZMSX_mark": "", "XLDX_mark": "", "KJSD": "0", "Longitude": "", "LJZC_mark": "", "JTLSSD_mark": "", "Time": "20160509", "DXQZ": "0", "SGDS_mark": "", "KJQS_mark": "", "CKDJD_mark": "", "UUID": "f0aab6d9-2fd6-4dd6-aa8e-1004a4ce5d10", "XLBZ": "0", "FBWPS_mark": "", "FBWPS": "0", "DXQZ_mark": "", "Special": "", "KJXS_mark": "", "JYBH_mark": "", "XLBZ_mark": "", "GGCM": "0", "Latitude": "", "KJQS": "0", "KJXS": "0", "Thousand": "", "JTLSQS": "0", "other": "0", "DCFJ_mark": "", "XLDX": "0", "Name": "\u80a1\u90533", "JYBH": "0", "XLDP": "0", "GGCHM": "0", "ZMSX": "0", "GMCS_mark": "", "LGZD": "0", "other_mark": "", "LGZD_mark": "", "CDDJD": "0", "CDDJD_mark": "", "DCQZ": "0", "SGDS": "0", "GMCS": "0", "Serial": "2"}, {"DCQZ_mark": "", "DCFJ": "", "KJSD_mark": "", "Identification": "", "XLDP_mark": "", "GGCHM_mark": "", "Hundred": "", "JTLSQS_mark": "", "CKDJD": "", "SGPS": "", "SGPS_mark": "", "HFYZM": "", "GGCM_mark": "", "HFYZM_mark": "", "JTLSSD": "", "LJZC": "", "ZMSX_mark": "", "XLDX_mark": "", "KJSD": "", "Longitude": "", "LJZC_mark": "", "JTLSSD_mark": "", "Time": "20160509", "DXQZ": "", "SGDS_mark": "", "KJQS_mark": "", "CKDJD_mark": "", "UUID": "d76b7b90-668f-432e-a114-2b94045d2be6", "XLBZ": "", "FBWPS_mark": "", "FBWPS": "", "DXQZ_mark": "", "Special": "", "KJXS_mark": "", "JYBH_mark": "", "XLBZ_mark": "", "GGCM": "", "Latitude": "", "KJQS": "d76b7b90-668f-432e-a114-2b94045d2be6", "KJXS": "", "Thousand": "", "JTLSQS": "", "other": "", "DCFJ_mark": "", "XLDX": "", "Name": "\u80a1\u90533", "JYBH": "", "XLDP": "", "GGCHM": "", "ZMSX": "", "GMCS_mark": "", "LGZD": "", "other_mark": "", "LGZD_mark": "", "CDDJD": "", "CDDJD_mark": "", "DCQZ": "", "SGDS": "", "GMCS": "", "Serial": "1"}, {"DCQZ_mark": "", "DCFJ": "0", "KJSD_mark": "", "Identification": "", "XLDP_mark": "", "GGCHM_mark": "", "Hundred": "", "JTLSQS_mark": "", "CKDJD": "0", "SGPS": "0", "SGPS_mark": "", "HFYZM": "0", "GGCM_mark": "", "HFYZM_mark": "", "JTLSSD": "0", "LJZC": "0", "ZMSX_mark": "", "XLDX_mark": "", "KJSD": "0", "Longitude": "", "LJZC_mark": "", "JTLSSD_mark": "", "Time": "20160509", "DXQZ": "0", "SGDS_mark": "", "KJQS_mark": "", "CKDJD_mark": "", "UUID": "174f65a8-76cb-4d0d-9923-f54b485ef702", "XLBZ": "0", "FBWPS_mark": "", "FBWPS": "0", "DXQZ_mark": "", "Special": "", "KJXS_mark": "", "JYBH_mark": "", "XLBZ_mark": "", "GGCM": "0", "Latitude": "", "KJQS": "0", "KJXS": "0", "Thousand": "", "JTLSQS": "0", "other": "0", "DCFJ_mark": "", "XLDX": "0", "Name": "\u80a1\u90534", "JYBH": "0", "XLDP": "0", "GGCHM": "0", "ZMSX": "0", "GMCS_mark": "", "LGZD": "0", "other_mark": "", "LGZD_mark": "", "CDDJD": "4", "CDDJD_mark": "", "DCQZ": "0", "SGDS": "0", "GMCS": "0", "Serial": "2"}]}';
+    var dataExampleJson =eval('('+dataExample+')').data;
+    /**线路图的表格**/
+    //data : object array
+    function initLineTable(data) {
+        if (data.length == 0 || lineTableColumnNames.length == 0) {
+            return;
+        }
+        var table_line = $("#table-line");
+        //初始化表格的第一行(标题)
+        for (var i = 0; i < lineTableColumnNames.length; i++) {
+
+            var th_clone = table_line.find("tr th").eq(i).clone();
+            th_clone.appendTo(table_line.find("tr").eq(0));
+            var th = table_line.find("tr th").eq(i);
+            th.text(lineTableColumnNames[i]);
+        }
+
+        for (var j = 0; j < lineTableColumnNames.length; j++) {
+            var td_clone = table_line.find("tr").eq(1).children("td").eq(j).clone();
+            td_clone.appendTo(table_line.find("tr").eq(1));
+        }
+
+        for (var k = 1; k < data.length; k++) {
+            var tr_clone = table_line.find("tr").eq(k).clone();
+            tr_clone.appendTo(table_line);
+
+        }
+
+        /* //数据填充
+         for (var m = 0; m < rows; m++) {
+         table_line.find("tr").eq(m + 1).children("td").eq(0).text((m + 1) + "");
+         for (var n = 1; n < lineTableColumnNames.length; n++) {
+         table_line.find("tr").eq(m + 1).children("td").eq(n).text(rowContent[n]);
+         }
+         }*/
+
+        //数据填充
+        var length = data.length;
+        for (var m = 0; m < length; m++) {
+            var td_c = table_line.find("tr").eq(m + 1).children("td");
+            td_c.eq(0).text((m + 1) + "");
+            td_c.eq(1).text(data[m].Name);
+            td_c.eq(2).text(data[m].Time);
+            td_c.eq(3).text(data[m].Identification);
+            td_c.eq(4).text(data[m].Thousand);
+            td_c.eq(5).text(data[m].Hundred);
+            td_c.eq(6).text(data[m].Special);
+            td_c.eq(7).text(data[m].KJQS);
+            td_c.eq(8).text(data[m].KJQS_mark);
+            td_c.eq(9).text(data[m].KJSD);
+            td_c.eq(10).text(data[m].KJSD_mark);
+            td_c.eq(11).text(data[m].KJXS);
+            td_c.eq(12).text(data[m].KJXS_mark);
+            td_c.eq(13).text(data[m].CDDJD);
+            td_c.eq(14).text(data[m].CDDJD_mark);
+            td_c.eq(15).text(data[m].CKDJD);
+            td_c.eq(16).text(data[m].CKDJD_mark);
+            td_c.eq(17).text(data[m].LGZD);
+            td_c.eq(18).text(data[m].LGZD_mark);
+            td_c.eq(19).text(data[m].GMCS);
+            td_c.eq(20).text(data[m].GMCS_mark);
+            td_c.eq(21).text(data[m].HFYZM);
+            td_c.eq(22).text(data[m].HFYZM_mark);
+            td_c.eq(23).text(data[m].JTLSSD);
+            td_c.eq(24).text(data[m].JTLSSD_mark);
+            td_c.eq(25).text(data[m].JTLSQS);
+            td_c.eq(26).text(data[m].JTLSQS_mark);
+            td_c.eq(27).text(data[m].DCFJ);
+            td_c.eq(28).text(data[m].DCFJ_mark);
+            td_c.eq(29).text(data[m].ZMSX);
+            td_c.eq(30).text(data[m].ZMSX_mark);
+            td_c.eq(31).text(data[m].JYBH);
+            td_c.eq(32).text(data[m].JYBH_mark);
+            td_c.eq(33).text(data[m].DCQZ);
+            td_c.eq(34).text(data[m].DCQZ_mark);
+            td_c.eq(35).text(data[m].LJZC);
+            td_c.eq(36).text(data[m].LJZC_mark);
+            td_c.eq(37).text(data[m].SGDS);
+            td_c.eq(38).text(data[m].SGDS_mark);
+            td_c.eq(39).text(data[m].DXQZ);
+            td_c.eq(40).text(data[m].DXQZ_mark);
+            td_c.eq(41).text(data[m].XLDP);
+            td_c.eq(42).text(data[m].XLDP_mark);
+            td_c.eq(43).text(data[m].XLDX);
+            td_c.eq(44).text(data[m].XLDX_mark);
+            td_c.eq(45).text(data[m].FBWPS);
+            td_c.eq(46).text(data[m].FBWPS_mark);
+            td_c.eq(47).text(data[m].GGCM);
+            td_c.eq(48).text(data[m].GGCM_mark);
+            td_c.eq(49).text(data[m].GGCHM);
+            td_c.eq(50).text(data[m].GGCHM_mark);
+            td_c.eq(51).text(data[m].SGPS);
+            td_c.eq(52).text(data[m].SGPS_mark);
+            td_c.eq(53).text(data[m].XLBZ);
+            td_c.eq(54).text(data[m].XLBZ_mark);
+            td_c.eq(55).text(data[m].other);
+            td_c.eq(56).text(data[m].other_mark);
+        }
+
+    }
+
+    /**从请求的json中 得到线路的数据 data：object array**/
+    //如果经纬度不为空，则保留
+    function lineDataFilter(data) {
+        var lineArrays = [];
+        for (var i = 0; i < data.length; i++) {
+            if ((data[i].Longitude != "") && (data[i].Latitude != "")) {
+                lineArrays.push(data[i]);
+            }
+        }
+        return lineArrays;
+    }
+
+    function roadDataFilter(data) {
+        var roadArrays = [];
+        for (var i = 0; i < data.length; i++) {
+            if ((data[i].Longitude == "") && (data[i].Latitude == "")) {
+                roadArrays.push(data[i]);
+            }
+        }
+        return roadArrays;
+    }
+
+    /**时间格式转换**/
+    //20160510 -> 2016-05-10
+    function castTimeString(time){
+         return time.substr(0,4)+"-"+time.substr(4,2)+"-"+time.substr(6);
+    }
+
+    //2016-05-10 ->20160510
+    function castTimeString(time){
+         return time.substr(0,4)+time.substr(5,2)+"-"+time.substr(8);
+    }
+
+    /**股道的表格**/
+    function initRoadTable(data) {
+        if (data.length == 0 || roadTableColumnNames.length == 0) {
+            return;
+        }
+
+        var table_road = $("#table-road");
+        //初始化表格的第一行(标题)
+        for (var i = 0; i < roadTableColumnNames.length; i++) {
+
+            var th_clone = table_road.find("tr th").eq(i).clone();
+            th_clone.appendTo(table_road.find("tr").eq(0));
+            var th = table_road.find("tr th").eq(i);
+            th.text(roadTableColumnNames[i]);
+        }
+
+        //初始化一行中的列数
+        for (var j = 0; j < roadTableColumnNames.length; j++) {
+            var td_clone = table_road.find("tr").eq(1).children("td").eq(j).clone();
+            td_clone.appendTo(table_road.find("tr").eq(1));
+        }
+
+        //初始化多行
+        for (var k = 1; k < data.length; k++) {
+            var tr_clone = table_road.find("tr").eq(k).clone();
+            tr_clone.appendTo(table_road);
+
+        }
+
+      /*  //数据填充
+        for (var m = 0; m < rows; m++) {
+            table_road.find("tr").eq(m + 1).children("td").eq(0).text((m + 1) + "");
+            for (var n = 1; n < roadTableColumnNames.length; n++) {
+                table_road.find("tr").eq(m + 1).children("td").eq(n).text(rowContent[n]);
+            }
+        }
+*/
+        //数据填充
+        var length = data.length;
+        alert(length);
+        for (var m = 0; m < length; m++) {
+            var td_c = table_road.find("tr").eq(m + 1).children("td");
+            td_c.eq(0).text((m + 1) + "");
+            td_c.eq(1).text(data[m].Name);
+            td_c.eq(2).text(data[m].Time);
+            td_c.eq(3).text(data[m].Serial);
+            td_c.eq(4).text(data[m].KJQS);
+            td_c.eq(5).text(data[m].KJQS_mark);
+            td_c.eq(6).text(data[m].KJSD);
+            td_c.eq(7).text(data[m].KJSD_mark);
+            td_c.eq(8).text(data[m].KJXS);
+            td_c.eq(9).text(data[m].KJXS_mark);
+            td_c.eq(10).text(data[m].CDDJD);
+            td_c.eq(11).text(data[m].CDDJD_mark);
+            td_c.eq(12).text(data[m].CKDJD);
+            td_c.eq(13).text(data[m].CKDJD_mark);
+            td_c.eq(14).text(data[m].LGZD);
+            td_c.eq(15).text(data[m].LGZD_mark);
+            td_c.eq(16).text(data[m].GMCS);
+            td_c.eq(17).text(data[m].GMCS_mark);
+            td_c.eq(18).text(data[m].HFYZM);
+            td_c.eq(19).text(data[m].HFYZM_mark);
+            td_c.eq(20).text(data[m].JTLSSD);
+            td_c.eq(21).text(data[m].JTLSSD_mark);
+            td_c.eq(22).text(data[m].JTLSQS);
+            td_c.eq(23).text(data[m].JTLSQS_mark);
+            td_c.eq(24).text(data[m].DCFJ);
+            td_c.eq(25).text(data[m].DCFJ_mark);
+            td_c.eq(26).text(data[m].ZMSX);
+            td_c.eq(27).text(data[m].ZMSX_mark);
+            td_c.eq(28).text(data[m].JYBH);
+            td_c.eq(29).text(data[m].JYBH_mark);
+            td_c.eq(30).text(data[m].DCQZ);
+            td_c.eq(31).text(data[m].DCQZ_mark);
+            td_c.eq(32).text(data[m].LJZC);
+            td_c.eq(33).text(data[m].LJZC_mark);
+            td_c.eq(34).text(data[m].SGDS);
+            td_c.eq(35).text(data[m].SGDS_mark);
+            td_c.eq(36).text(data[m].DXQZ);
+            td_c.eq(37).text(data[m].DXQZ_mark);
+            td_c.eq(38).text(data[m].XLDP);
+            td_c.eq(39).text(data[m].XLDP_mark);
+            td_c.eq(40).text(data[m].XLDX);
+            td_c.eq(41).text(data[m].XLDX_mark);
+            td_c.eq(42).text(data[m].FBWPS);
+            td_c.eq(43).text(data[m].FBWPS_mark);
+            td_c.eq(44).text(data[m].GGCM);
+            td_c.eq(45).text(data[m].GGCM_mark);
+            td_c.eq(46).text(data[m].GGCHM);
+            td_c.eq(47).text(data[m].GGCHM_mark);
+            td_c.eq(48).text(data[m].SGPS);
+            td_c.eq(49).text(data[m].SGPS_mark);
+            td_c.eq(50).text(data[m].XLBZ);
+            td_c.eq(51).text(data[m].XLBZ_mark);
+            td_c.eq(52).text(data[m].other);
+            td_c.eq(53).text(data[m].other_mark);
+        }
+    }
+
+
+    function initTab() {
+        $("#tab").tabs({
+            narrow: true,
+            justified: false,
+            onSelect: function (title, index) {
+                //setFrameHeight();//每次切换完面板后重新设定父框架高度
+            }
+        });
+    }
+
+
+    /***高德地图模块***/
+    var mapObj, scale, view, tool, geocoder;//定义插件变量
+    function initMap() {
+        mapObj = new AMap.Map('map', {zoom: 4, doubleClickZoom: false});
+        mapObj.plugin(["AMap.Scale", "AMap.OverView", "AMap.ToolBar"], function () {
+            scale = new AMap.Scale();
+            mapObj.addControl(scale);
+            view = new AMap.OverView();
+            mapObj.addControl(view);
+            view.open();
+            tool = new AMap.ToolBar();
+            mapObj.addControl(tool);
+        });
+
+        //地理编码插件,根据经纬度查询地址信息
+        AMap.plugin("AMap.Geocoder", function () {
+            geocoder = new AMap.Geocoder({city: "010"});//城市，默认："全国"
+            //showAddress();//在map上添加click监听事件,根据点击点的经纬度查询出该点的地址
+        });
+
+        /*
+         //查询地址并定位插件
+         AMap.plugin(["AMap.Autocomplete","AMap.PlaceSearch"],function(){
+         var autoOptions={
+         city:"北京", //城市，默认全国
+         input:"searchPlace"//使用联想输入的input的id
+         };
+         var autocomplete=new AMap.Autocomplete(autoOptions);
+         var placeSearch=new AMap.PlaceSearch({
+         city:"北京",
+         map:mapObj
+         })
+         AMap.event.addListener(autocomplete,"select",function(e){
+         //针对选中的poi实现自己的功能
+         placeSearch.search(e.poi.name);
+         //return false;//防止表达自己提交了
+         });
+         });
+         */
+
+        addCustomInfoWindow();//在map上添加监听,双击即可添加标注和窗体
+    }
+    var tip = 1;
+    function addCustomInfoWindow() {//在map上添加监听,双击即可添加标注和窗体
+        AMap.event.addListener(mapObj, "dblclick", function (e) {
+            //mapObj.clearMap();
+            var mark = new AMap.Marker({
+                position: [e.lnglat.lng, e.lnglat.lat],
+                map: mapObj,
+                //content:"病害信息"+tip
+            });
+            //mark.setMap(mapObj);//在map上添加点标记覆盖物
+            addInfoWindow(mark);//为自定义点标注添加信息窗体
+            removeMarker(mark);//监听自定义添加的点标记,右击即可删除
+            tip++;
+        });
+    }
+
+    /* var markerAddress;//在map上添加click监听事件,根据点击点的经纬度查询出该点的地址
+     function showAddress(){
+     AMap.event.addListener(mapObj,"click",function(e){
+     geocoder.getAddress(e.lnglat,function(status,result){
+     if(status=='complete'){
+     document.getElementById("showLocation").innerHTML=result.regeocode.formattedAddress+";<br/>经纬度："+e.lnglat.lng+","+e.lnglat.lat;
+     markerAddress=result.regeocode.formattedAddress;
+     }else{
+     $("#geocoder dd:first-of-type").text("查询地址失败。");
+     }
+     });
+     //$("#geocoder dd:first-of-type").val(e.lnglat.lng+","+e.lnglat.lat);//点击获取坐标
+     });
+     } */
+
+    var markerAddress;
+    function addInfoWindow(marker) {//为集合中每个点标注添加信息窗体,点击即可显示
+        marker.on('click', function (e) {
+            geocoder.getAddress(e.lnglat, function (status, result) {
+                if (status == 'complete') {
+                    document.getElementById("showLocation").innerHTML = result.regeocode.formattedAddress + ";\n经纬度：\n" + e.lnglat.lng + "," + e.lnglat.lat;
+                    markerAddress = result.regeocode.formattedAddress;
+                } else {
+                    document.getElementById("showLocation").innerHTML = "查询地址失败。";
+                }
+            });
+            document.getElementById("showError").innerHTML = this.getContent();
+            this.title = markerAddress;//title:provinces[i].name
+            //为每个点标注添加窗体
+            var infoWindow = new AMap.InfoWindow({offset: new AMap.Pixel(0, -30), content: e.target.title});
+            infoWindow.open(mapObj, e.target.getPosition());
+        });
+        //marker.emit('click',{target:marker});执行click事件
+    }
+
+    function removeMarker(mark) { //监听自定义添加的点标记,右击即可删除
+        AMap.event.addListener(mark, "rightclick", function (e) {
+            if (confirm("确定要删除该标注吗？")) {
+                e.target.hide();
+                //mapObj.removeOverlays(e.target.id);
+            } else {
+                e.target.setIcon("images/redMarker.png");
+            }
+        });
+    }
+    /***高德地图模块***/
+
+
+
+
+
+    function hideInput(obj) {
+        var tab = $('#tab').tabs('getSelected');
+        var index = $('#tab').tabs('getTabIndex', tab);
+        switch (index) {
+            case 1:
+                var $tableObj = $("#line table:eq(1)>tbody");
+                for (var i = 0; i < $tableObj.children("tr").length; i++) {
+                    var $tebleRow = $tableObj.children("tr").eq(i);
+                    for (var j = 0; j < $tebleRow.children("td").length; j++) {
+                        var text_value = $tebleRow.children("td").eq(j).children("input").val();
+                        $tebleRow.children("td").eq(j).children("input").replaceWith("" + text_value);
+                    }
+                }
+                ;
+                break;
+            case 2:
+                var $tableObj = $("#road table:eq(1)>tbody");
+                for (var i = 0; i < $tableObj.children("tr").length; i++) {
+                    var $tebleRow = $tableObj.children("tr").eq(i);
+                    for (var j = 0; j < $tebleRow.children("td").length; j++) {
+                        var text_value = $tebleRow.children("td").eq(j).children("input").val();
+                        $tebleRow.children("td").eq(j).children("input").replaceWith("" + text_value);
+                    }
+                }
+                ;
+                break;
+        }
+        $(obj).remove();
+    }
+</script>
+</html>

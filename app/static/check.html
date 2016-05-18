@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>巡检搜索</title>
+<style type="text/css">
+form{
+   float:left;
+}
+table:last-child{
+   float:right;
+   width:50%;
+}
+table:last-child tr{
+  height:30px;
+}
+table:last-child th{
+  border:1px solid silver;
+}
+table:last-child td{
+  border:1px solid silver;
+}
+</style>
+</head>
+<body>
+<h1 style="text-align:center;">铁 路 巡 检 系 统 管 理 平 台</h1>
+<form action="" >
+   <select>
+      <option>巡检人员</option>
+   </select>
+   <input type="text"/>
+   <input type="submit" value="查询"/>
+</form>
+<table>
+	<thead>
+		<tr>
+			<th>巡检地点</th>
+			<th>巡检人员</th>
+			<th>手机号</th>
+			<th>巡检时间</th>
+			<th>巡检备注</th>
+			<th>巡检照片</th>
+			<th>巡检验证</th>
+			<th>地图显示</th>
+		</tr>
+	</thead>
+	<tbody></tbody>
+</table>
+</body>
+<script type="text/javascript">
+$(document).ready(function(){
+	  initTable();//初始化插入空白单元格
+});
+
+function initTable(){
+	for(var i=0;i<15;i++){
+	  $("table tbody").append("<tr></tr>");
+	  for(var j=0;j<8;j++){
+	    $("table tbody").append("<td></td>");
+	  }
+	}
+}
+
+</script>
+</html>

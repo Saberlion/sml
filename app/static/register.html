@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册</title>
+
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            font-size: 1.03em;
+            font-family:"宋体",fantasy;
+        }
+
+        body {
+            width: 100%;
+            min-height: 400px;
+            height:auto;
+            background-color: rgba(41, 255, 64, 0.18);
+        }
+
+        #register-block {
+            width: 400px;
+            height: 250px;
+            margin: 200px auto;
+
+            /*background: url("images/register-bgi.jpg") 500px 380px;*/
+            background-color: rgba(255, 202, 235, 0.46);
+            border: 1px solid red;
+            border-radius: 10px;
+        }
+        table{
+            padding: 10px;
+            margin: 10px auto;
+        }
+        tr{
+            line-height: 200%;
+        }
+        input{
+            height: 30px;
+            width: 220px;
+        }
+    </style>
+</head>
+<body>
+
+
+<div id="register-block">
+    <p id="title" style="text-align: center;font-size: 1.5em">新用户</p>
+    <form id="register-form" action=" " method="post">
+        <table>
+            <tbody>
+            <tr>
+                <td>用户名：</td>
+                <td colspan="2"><input id="username" type="text" required="required" name="user.username"/>
+            </tr>
+            <tr>
+                <td>密　码：</td>
+                <td colspan="2"><input type="password" required="required" name="user.password"/></td>
+            </tr>
+            <tr style="opacity: 0;color: red">
+                <td colspan="3" align="center">
+                     用户名或密码错误!
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" align="center">
+                    <input type="submit" value="注册" style="width: 100px;height: 45px;padding: 2px;background-color: #aac5e7;border-radius: 7px"/>
+
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+</body>
+
+</html>
