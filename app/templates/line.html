@@ -226,7 +226,7 @@
     </div>
 </div>
 
-<button onclick="hideInput(this)">隐藏输入框</button>
+
 </body>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -270,6 +270,7 @@
             dataType: "json",
               contentType:"application/json",
             success: function (data) {
+
               deal_json_for_map(data.data);
             }
         });
@@ -292,11 +293,16 @@
             return;
         }
 
+        　//添加标注之前，删除之前所有标注的点
+         mapObj.clearMap();
+         //添加标注
          for(var i=0;i<obj_array.length;i++){
                var obj_content =obj_array[i];
                var location =[obj_content.Longitude,obj_content.Latitude];
                addMarker(location,obj_content);
          }
+         //标注添加完成后，设置地图缩放级别和中心点
+        mapObj.setZoomAndCenter(12, [114.155, 30.6116]);
    }
 
 
