@@ -145,7 +145,13 @@
             </tr>
             <tr>
                 <td>行别</td>
-                <td><input id="line_xb" type="text"/></td>
+                <td>
+                    <select id="line_xb">
+                        <option selected="selected">上行</option>
+                        <option>下行</option>
+                        <option>单线</option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <td>特殊设备</td>
@@ -181,9 +187,9 @@
                 <td>股道名</td>
                 <td>
                     <select id="road_name">
-                        <option selected="selected">汉丹线</option>
-                        <option>京九线</option>
-                        <option>武黄线</option>
+                        <option selected="selected">股道3</option>
+                        <option>股道4</option>
+                        <option>股道6</option>
                     </select>
                 </td>
             </tr>
@@ -290,6 +296,7 @@
          var obj_array =lineDataFilter(data);
         if(obj_array.length==0){
             alert("没有符合条件的数据");
+             mapObj.clearMap();
             return;
         }
 
@@ -318,6 +325,12 @@
                 var line_data =lineDataFilter(data.data);
                 if(line_data.length==0){
                     alert("没有符合条件的数据");
+                    if(line_state ==1){
+             //删除当前表格
+            　$("#table-line").remove();
+             //初始化表格
+            createTable_line();
+         }
                     return;
                 }
                 initLineTable(line_data);
@@ -338,6 +351,12 @@
                 var road_data =roadDataFilter(data.data);
                 if(road_data.length==0){
                     alert("没有符合条件的数据");
+                    if(road_state ==1){
+             //删除当前表格
+            　$("#table-road").remove();
+             //初始化表格
+            createTable_road();
+         }
                     return;
                 }
                 initRoadTable(road_data);
