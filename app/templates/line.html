@@ -389,6 +389,7 @@
         road_end_time =castTimeString2(road_end_time);
         var road_num = $('#road_num').val() == "" ? "" : $('#road_num').val();
         var jsonStr = {"name":road_name ,"startdate":road_start_time,"enddate":road_end_time,"thousand":"","hundred":"","identification":"","special":"","Serial":road_num};
+       　alert(road_name);　
         return jsonStr;
     }
 
