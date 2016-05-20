@@ -110,7 +110,6 @@ class Mainline(db.Model):
 class LineError(db.Model):
     __tablename__ = "LineError"
 
-    id = Column(Integer, autoincrement=1)
     Name = Column(String)
     Time = Column(DateTime)
     Identification = Column(String)
@@ -192,7 +191,7 @@ class LineError(db.Model):
 
     def IsExist(self):
         # to-do
-        res = LineError.query.filter(LineError.UUID == self.UUID).order_by(LineError.id.desc()).first()
+        res = LineError.query.filter(LineError.UUID == self.UUID).order_by(LineError.UUID.desc()).first()
         if res:
             return True
         else:

@@ -4,7 +4,7 @@ MAINTAINER saberlion <admin@saberlion.info>
 ENV DEBIAN_FRONTEND noninteractive
 copy . /var/www/
 RUN apt-get update
-RUN apt-get -y install nginx  sed python-pip python-dev supervisor mongodb
+RUN apt-get -y install nginx  sed python-pip python-dev supervisor
 
 RUN pip install -r /var/www/requirements.txt
 

@@ -174,7 +174,6 @@ def checkErrorPost():
     query = LineError.query
     name = resjson['name']
     if name and len(name)>0:
-
         query = query.filter(LineError.Name == name)
     if startdate and enddate:
         query = query.filter(LineError.Time.between(startdate,enddate))
